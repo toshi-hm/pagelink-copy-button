@@ -1,5 +1,7 @@
 # 実装計画
 
+実装完了。main への merge と GitHub Actions の成功を確認済みです。
+
 ## 実装済み
 
 - [x] Bun + TypeScript + WXT の初期設定
