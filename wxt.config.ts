@@ -4,7 +4,7 @@ export default defineConfig({
   manifest: {
     name: 'PageLink Copy Button',
     description: 'ページタイトルと URL をハイパーリンクとしてコピーします。',
-    permissions: ['clipboardWrite', 'storage'],
+    permissions: ['clipboardWrite', 'contextMenus', 'storage'],
     icons: {
       '16': '/icon-16.png',
       '32': '/icon-32.png',

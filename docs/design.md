@@ -15,7 +15,7 @@
    - `text/plain`: `タイトル (URL)`
 4. コピー成功時は水色のボタンを緑色へ変え、チェックマークを表示する。1.5 秒後に通常状態へ戻す。
 5. ポインター操作でボタンをドラッグできる。位置は viewport 内に収め、`chrome.storage.local` に保存する。
-6. 右クリックで独自メニューを開き、「このボタンを非表示」と「キャンセル」を選択できる。
+6. ページ上の任意位置で通常の Chrome 右クリックメニューを開くと、「ページリンクをコピー」「PageLink ボタンを表示」「PageLink ボタンを非表示」を選択できる。
 7. 非表示状態は拡張機能の popup から再表示できる。popup には表示切替と位置リセットを置く。
 
 ### 対応しない挙動
@@ -41,7 +41,7 @@ tests/
 └── *.test.ts           # Bun で実行する純粋ロジックのテスト
 ```
 
-Content script の UI は Shadow DOM に入れて、対象ページの CSS と拡張機能の CSS が互いに影響しないようにする。メニューも同じ Shadow root 内に置く。保存値は次の単一キーにまとめ、将来の拡張で後方互換性を保つ。
+Content script の UI は Shadow DOM に入れて、対象ページの CSS と拡張機能の CSS が互いに影響しないようにする。Chrome の通常コンテキストメニューは background service worker の `contextMenus` API で登録し、選択結果を content script へメッセージで伝える。保存値は次の単一キーにまとめ、将来の拡張で後方互換性を保つ。
 
 ```ts
 type Settings = {
@@ -57,7 +57,7 @@ idle (水色)
   ├─ click ──> copying ──成功──> copied (緑 + check) ──1.5s──> idle
   │                       └─失敗──> error (赤) ──1.5s──> idle
   ├─ pointerdown/move ──> dragging ──pointerup──> idle
-  └─ contextmenu ──> menu-open ──hide──> hidden
+  └─ contextmenu ──> Chrome 標準メニュー ──hide──> hidden
 ```
 
 ドラッグ開始後は移動量が一定以上になるまでクリックを予約し、ドラッグ終了時の `click` でコピーが発火しないようにする。キーボード利用時は `button` 要素として Enter と Space でコピーし、右クリック相当の設定操作は popup でも到達できるようにする。

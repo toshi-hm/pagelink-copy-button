@@ -9,7 +9,10 @@ const UI_ID = 'pagelink-copy-button-ui';
 const SUCCESS_DURATION = 1500;
 const DRAG_THRESHOLD = 4;
 
-type ContentMessage = { type: 'set-visible'; visible: boolean } | { type: 'reset-position' };
+type ContentMessage =
+  | { type: 'copy-current' }
+  | { type: 'set-visible'; visible: boolean }
+  | { type: 'reset-position' };
 
 function isContentMessage(value: unknown): value is ContentMessage {
   if (typeof value !== 'object' || value === null) {
@@ -18,6 +21,7 @@ function isContentMessage(value: unknown): value is ContentMessage {
 
   const candidate = value as Record<string, unknown>;
   return (
+    candidate.type === 'copy-current' ||
     (candidate.type === 'set-visible' && typeof candidate.visible === 'boolean') ||
     candidate.type === 'reset-position'
   );
@@ -30,7 +34,6 @@ export default defineContentScript({
     let settings: Settings = { visible: true, position: null };
     let host: HTMLDivElement | undefined;
     let button: HTMLButtonElement | undefined;
-    let menu: HTMLDivElement | undefined;
     let currentPosition: Position | undefined;
     let suppressNextClick = false;
     let statusTimer: number | undefined;
@@ -41,12 +44,6 @@ export default defineContentScript({
       void saveSettings(settings).catch((error: unknown) => {
         console.error('[PageLink Copy Button] Failed to save settings', error);
       });
-    };
-
-    const hideMenu = () => {
-      if (menu) {
-        menu.hidden = true;
-      }
     };
 
     const applyPosition = (position: Position) => {
@@ -98,11 +95,9 @@ export default defineContentScript({
     };
 
     const removeUi = () => {
-      hideMenu();
       host?.remove();
       host = undefined;
       button = undefined;
-      menu = undefined;
     };
 
     const mountUi = () => {
@@ -128,33 +123,20 @@ export default defineContentScript({
         .copy-button[data-state="error"] { background: #dc2626; }
         .icon { font-size: 28px; font-weight: 700; line-height: 1; }
         .sr-only { clip: rect(0 0 0 0); clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px; }
-        .menu { background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; bottom: 66px; box-shadow: 0 8px 24px rgb(15 23 42 / 20%); display: grid; gap: 4px; min-width: 180px; padding: 6px; position: absolute; right: 0; }
-        .menu[hidden] { display: none; }
-        .menu-item { background: transparent; border: 0; border-radius: 6px; color: #0f172a; cursor: pointer; font: 14px/1.4 system-ui, sans-serif; padding: 9px 10px; text-align: left; }
-        .menu-item:hover { background: #e0f2fe; }
         @media (prefers-reduced-motion: reduce) { .copy-button { transition: none; } }
       </style>
       <div class="wrapper">
         <button class="copy-button" type="button" aria-label="ページリンクをコピー" title="ページリンクをコピー">
           <span class="icon" aria-hidden="true">↗</span><span class="sr-only">ページリンクをコピー</span>
         </button>
-        <div class="menu" role="menu" hidden>
-          <button class="menu-item hide-item" type="button" role="menuitem">このボタンを非表示</button>
-          <button class="menu-item cancel-item" type="button" role="menuitem">キャンセル</button>
-        </div>
       </div>`;
 
       button = shadow.querySelector<HTMLButtonElement>('.copy-button') ?? undefined;
-      menu = shadow.querySelector<HTMLDivElement>('.menu') ?? undefined;
-      const hideItem = shadow.querySelector<HTMLButtonElement>('.hide-item');
-      const cancelItem = shadow.querySelector<HTMLButtonElement>('.cancel-item');
 
-      if (!button || !menu || !hideItem || !cancelItem) {
+      if (!button) {
         removeUi();
         return;
       }
-
-      const uiMenu = menu;
 
       let drag: {
         origin: Position;
@@ -171,11 +153,6 @@ export default defineContentScript({
         }
 
         void copyCurrentPage();
-      });
-
-      button.addEventListener('contextmenu', (event) => {
-        event.preventDefault();
-        uiMenu.hidden = false;
       });
 
       button.addEventListener('pointerdown', (event) => {
@@ -227,19 +204,6 @@ export default defineContentScript({
 
       button.addEventListener('pointerup', finishDrag);
       button.addEventListener('pointercancel', finishDrag);
-      hideItem.addEventListener('click', () => {
-        settings.visible = false;
-        persistSettings();
-        removeUi();
-      });
-      cancelItem.addEventListener('click', hideMenu);
-
-      document.addEventListener('pointerdown', (event) => {
-        if (event.composedPath().includes(host as HTMLDivElement)) {
-          return;
-        }
-        hideMenu();
-      });
 
       window.addEventListener('resize', () => {
         if (currentPosition) {
@@ -254,6 +218,11 @@ export default defineContentScript({
 
     const handleMessage = (message: unknown) => {
       if (!isContentMessage(message)) {
+        return;
+      }
+
+      if (message.type === 'copy-current') {
+        void copyCurrentPage();
         return;
       }
 
