@@ -2,6 +2,26 @@
 
 ページタイトルと URL を、クリックひとつでハイパーリンクとしてコピーできる Chrome 拡張機能です。
 
+## 画面イメージ
+
+### 拡張機能アイコン
+
+![PageLink Copy Button の拡張機能アイコン](public/icon-128.png)
+
+### ページ上のコピーボタン
+
+ページ右下に表示される実際のボタンです。ドラッグして好きな位置へ移動できます。
+
+![ページ上に表示された PageLink Copy Button](docs/images/button-on-page.png)
+
+### Chrome の右クリックメニュー
+
+ページ上で通常の右クリックをすると、Chrome のコンテキストメニューから PageLink Copy Button を選べます。
+
+![Chrome の右クリックメニューに表示された PageLink Copy Button](docs/images/context-menu.png)
+
+Chrome の仕様により、拡張機能の項目は `PageLink Copy Button` のサブメニューにまとめて表示されます。サブメニューから「ページリンクをコピー」「PageLink ボタンを表示」「PageLink ボタンを非表示」を選択できます。
+
 ## セットアップ
 
 現在は Chrome ウェブストア未公開のため、ビルドした拡張機能を Chrome に読み込んで使用します。
