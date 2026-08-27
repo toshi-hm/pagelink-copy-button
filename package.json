@@ -17,6 +17,7 @@
     "check": "bun run format:check && bun run lint && bun run lint:markdown && bun run test && bun run typecheck && bun run build"
   },
   "devDependencies": {
+    "@types/bun": "^1.4.0",
     "markdownlint-cli2": "^0.23.2",
     "oxfmt": "^0.65.0",
     "oxlint": "^1.80.0",
