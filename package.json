@@ -1,0 +1,27 @@
+{
+  "name": "pagelink-copy-button",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "prepare": "wxt prepare",
+    "typecheck": "wxt prepare && tsc --noEmit -p .wxt/tsconfig.json",
+    "lint": "oxlint .",
+    "lint:markdown": "markdownlint-cli2 \"**/*.md\"",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "check": "bun run format:check && bun run lint && bun run lint:markdown && bun run typecheck && bun run build"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.23.2",
+    "oxfmt": "^0.65.0",
+    "oxlint": "^1.80.0",
+    "rollup": "^4.63.0",
+    "typescript": "^5.9.3",
+    "wxt": "^0.21.4"
+  },
+  "packageManager": "bun@1.3.14"
+}
