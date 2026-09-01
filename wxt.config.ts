@@ -1,6 +1,8 @@
 import { defineConfig } from 'wxt';
 
 export default defineConfig({
+  outDir: 'extension',
+  outDirTemplate: '',
   manifest: {
     name: 'PageLink Copy Button',
     description: 'ページタイトルと URL をハイパーリンクとしてコピーします。',

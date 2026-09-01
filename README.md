@@ -24,25 +24,70 @@ Chrome の仕様により、拡張機能の項目は `PageLink Copy Button` の�
 
 ## セットアップ
 
-現在は Chrome ウェブストア未公開のため、ビルドした拡張機能を Chrome に読み込んで使用します。
+現在は Chrome ウェブストア未公開です。main ブランチへマージされると GitHub Actions が Chrome 用のビルドを実行し、リポジトリ内の `extension/` を更新します。一般ユーザーは Bun をインストールしたりビルドしたりせず、そのディレクトリを Chrome に読み込めます。
 
-### 1. リポジトリを取得してビルド
+### 事前に用意するもの
 
-Bun をインストールした環境で、次のコマンドを実行します。
+- Google Chrome
+- Git（コマンドでリポジトリを取得する場合）
+
+Chrome ウェブストアからインストールする拡張機能ではないため、Chrome のデベロッパー モードを使用します。Bun、Node.js、TypeScript などの開発環境は必要ありません。
+
+### 1. リポジトリを取得する
+
+#### Gitを使う場合
+
+ターミナルで次のコマンドを実行します。
 
 ```bash
 git clone https://github.com/toshi-hm/pagelink-copy-button.git
 cd pagelink-copy-button
-bun install
-bun run build
 ```
 
-### 2. Chrome に読み込む
+#### ZIPで取得する場合
+
+Gitを使わない場合は、GitHubの「Code」ボタンから「Download ZIP」を選択して展開します。展開したフォルダーが、以降の手順でいうリポジトリフォルダーです。
+
+`extension/manifest.json` が存在することを確認してください。フォルダー構成は次のようになっています。
+
+```text
+pagelink-copy-button/
+└── extension/
+    └── manifest.json
+```
+
+mainへのマージ直後などで `extension/` がまだ存在しない、または更新中の場合は、GitHub Actions の `Build extension` が完了するまで待ってから取得してください。
+
+### 2. Chromeに読み込む
 
 1. Chrome で `chrome://extensions` を開きます。
 2. 右上の「デベロッパー モード」を有効にします。
 3. 「パッケージ化されていない拡張機能を読み込む」をクリックします。
-4. リポジトリ内の `.output/chrome-mv3` フォルダーを選択します。
+4. 取得したリポジトリ内の `extension/` フォルダーを選択します。
+
+Chromeのファイル選択画面で `manifest.json` が表示される場所が正しい選択先です。`pagelink-copy-button/` そのものや、`extension/` の中にある個別ファイルは選択しないでください。
+
+読み込みが完了すると、拡張機能の一覧に「PageLink Copy Button」が表示されます。必要に応じて拡張機能カードのピン留めボタンから、ツールバーにアイコンを固定してください。
+
+### 3. ページを再読み込みする
+
+インストール後に開いていたページでは、拡張機能のボタンがすぐに表示されない場合があります。その場合は対象ページを再読み込みしてください。
+
+### 更新する
+
+Gitで取得した場合は、リポジトリフォルダーで次のコマンドを実行し、Chromeの拡張機能一覧にある再読み込みボタンを押します。
+
+```bash
+git pull
+```
+
+ZIPで取得した場合は、GitHubから最新のZIPをダウンロードして展開し、Chromeの拡張機能一覧で古い拡張機能を削除してから、新しい `extension/` を読み込んでください。
+
+### うまく読み込めない場合
+
+- 「manifest file is missing」などと表示される場合は、リポジトリのルートではなく `extension/` を選択してください。
+- `extension/` がない場合は、mainブランチの最新のGitHub Actionsで `Build extension` が完了していることを確認してから、もう一度取得してください。
+- 拡張機能を読み込めてもボタンが表示されないページは、[`chrome://` ページなどの保護されたページ](#注意事項)の可能性があります。
 
 ## 使い方
 
@@ -107,7 +152,7 @@ Chrome 用の本番ビルドを作成します。
 bun run build
 ```
 
-生成された `.output/chrome-mv3` を Chrome の「パッケージ化されていない拡張機能を読み込む」から指定してください。ソースを変更した場合は再ビルド後、拡張機能の再読み込みが必要です。
+生成された `extension/` は Chrome の「パッケージ化されていない拡張機能を読み込む」から指定できます。`extension/` はmainへのマージ後にGitHub Actionsが更新する配布用生成物のため、手動で編集しないでください。ソースを変更した場合は再ビルド後、拡張機能の再読み込みが必要です。
 
 設計は [`docs/design.md`](docs/design.md)、進捗は [`PLANS.md`](PLANS.md)、エージェント向けの規約は [`AGENTS.md`](AGENTS.md) を参照してください。
 
